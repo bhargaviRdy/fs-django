@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>FC-python wrapper</title>
+    {% load static %}
+    <script type="text/javascript" src="https://cdn.fusioncharts.com/fusioncharts/latest/fusioncharts.js"></script>
+    <script type="text/javascript"
+        src="https://cdn.fusioncharts.com/fusioncharts/latest/fusioncharts.timeseries.js"></script>
+    <!-- {% load static %}
+    <script type="text/javascript" src="{% static " fusioncharts/fusioncharts.js" %}"></script>
+    <script type="text/javascript" src="{% static " fusioncharts/fusioncharts.charts.js" %}"></script>
+    <script type="text/javascript" src="{% static " fusioncharts/themes/fusioncharts.theme.fusion.js" %}"></script> -->
+    <!-- <script type="text/javascript" src="events.js"></script> -->
+    <script>
+        const getNextRandomDate = (d) => new Date(new Date(d).getTime() + 86399999);
+        const randBetween = (min, max) => {
+            let ceilMin = Math.ceil(min);
+            return Math.floor(Math.random() * (Math.floor(max) - ceilMin + 1)) + ceilMin;
+        };
+
+        const fd = (d) => {
+            let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+            let day = d.getDate() < 10 ? "0" + d.getDate() : d.getDate();
+            let month = months[(d.getUTCMonth())%12];
+            let year = d.getFullYear() % 2000;
+
+            let fDate = day + "-" + month + "-" + year;
+            return fDate;
+        };
+
+        const addRealTimeData = (chartRef) => {
+            let realtimeChart = chartRef.sender;
+            data = chartRef.sender.args.dataSource.data._data;
+            let lastDate = new Date(data[data.length - 1][0]);
+
+            realtimeChart.incrementor = setInterval(function () {
+                let newDate = getNextRandomDate(lastDate);
+                formattedNewDate = fd(newDate);
+                lastDate = newDate;
+                if (realtimeChart.feedData) {
+                    realtimeChart.feedData([[formattedNewDate, randBetween(10000, 40000)]]);
+                }
+
+            }, 1000);
+        }
+
+        const dispose = (eventObj) => {
+            const chartRef = eventObj;
+            clearInterval(chartRef.incrementor)
+        }
+    </script>
+</head>
+
+<body>
+    <div id="myFirstchart-container">{{ output|safe }}</div>
+</body>
+
+</html>
